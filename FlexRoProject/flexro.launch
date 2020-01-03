@@ -1,0 +1,17 @@
+<launch>
+  
+  <node pkg="j1939_ros" type="receiver.py" name="j1939_rx" output="screen" args="/home/jca/workspace/launch/j1939.yaml" respawn="true">
+  </node>
+
+  <node  pkg="j1939_ros" name="j1939_tx" type="transmitter.py" respawn="true" output="screen">
+     <param name="~transmit_topic" value="/j1939/transmitter" type="str" />
+  </node>
+
+  <node pkg="flexro_package" type="j1939_rx.py" name="test_receiver" respawn="true" output="screen" />
+
+  <node pkg="flexro_package" type="j1939_transmit.py" name="test_transmitter" respawn="true" output="screen" />
+
+  <node pkg="flexro_package" type="test_pub.py" name="publisher" respawn="true" output="screen" />
+
+</launch>
+

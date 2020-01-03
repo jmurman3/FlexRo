@@ -1,0 +1,28 @@
+topics:
+  /j1939/from_engine:
+    frame: "engine"
+    filters:
+    - {pf: 0xF0, ps: 0x03, source: 0x5A} # EEC2
+    - {pf: 0xF0, ps: 0x04, source: 0x5A} # EEC1
+    - {pf: 0xF0, ps: 0x05, source: 0x5A} # Electronic Transmission Controller 2
+    - {pf: 0xFE, ps: 0xEE, source: 0x5A} # coolant temperature
+    - {pf: 0xFE, ps: 0xEF, source: 0x5A} # oil pressure
+    - {pf: 0xFE, ps: 0xF6, source: 0x5A} # Intake/exhaust conditions 1
+    - {pf: 0xFE, ps: 0xFC, source: 0x5A} # Dash display (fuel level)
+    - {pf: 0xFF, ps: 0x0B, source: 0x5A} # state output
+    - {pf: 0xFE, ps: 0x4A, source: 0x5A} # Electronic Transmission Controller 7
+    - {pf: 0xFE, ps: 0xF1, source: 0x5A} # Cruise Control/Vehicle Speed 1
+  /j1939/from_hydro:
+    frame: "engine"
+    filters:
+    - {pf: 0xFF, ps: 0x03, source: 0x5A} # EEC2
+    - {pf: 0xFF, ps: 0x04, source: 0x5A} # EEC1
+    - {pf: 0xF0, ps: 0x05, source: 0x5A} # Electronic Transmission Controller 2
+    - {pf: 0xFE, ps: 0xEE, source: 0x5A} # coolant temperature
+    - {pf: 0xFE, ps: 0xEF, source: 0x5A} # oil pressure
+    - {pf: 0xFE, ps: 0xF6, source: 0x5A} # Intake/exhaust conditions 1
+    - {pf: 0xFE, ps: 0xFC, source: 0x5A} # Dash display (fuel level)
+    - {pf: 0xFF, ps: 0x0B, source: 0x5A} # state output
+    - {pf: 0xFE, ps: 0x4A, source: 0x5A} # Electronic Transmission Controller 7
+    - {pf: 0xFE, ps: 0xF1, source: 0x5A} # Cruise Control/Vehicle Speed 1
+
