@@ -5,7 +5,7 @@ from std_msgs.msg import Float64MultiArray
 class ExamplePublisher(object):
 
     def __init__(self):
-        self._publisher = rospy.Publisher("/test_package/test_topic", Float64MultiArray, queue_size=1)
+        self._publisher = rospy.Publisher("/flexro/imu", Float64MultiArray, queue_size=1)
 
     def run(self):
         rate = rospy.Rate(10)
@@ -17,7 +17,7 @@ class ExamplePublisher(object):
 
             count += 1
 
-            imu_array = [6, 7, 10, 19, 2, 3]
+            imu_array = [count, 7, 10, 19, 2, 3]
 
             message.data = imu_array
 

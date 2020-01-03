@@ -1,11 +1,10 @@
 #!/usr/bin/env python2
 
 import rospy
-import test_package
+import flexro_package
 
 if __name__ == '__main__':
 
-    rospy.init_node("test_node")
-    node = test_package.ExamplePublisher()
-    subscriber = test_package.ExampleSubscriber()
-    node.run()
+    rospy.init_node("estop_process")
+    node = flexro_package.EstopProcess()
+    rospy.spin()

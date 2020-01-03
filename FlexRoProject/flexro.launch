@@ -7,7 +7,7 @@
      <param name="~transmit_topic" value="/j1939/transmitter" type="str" />
   </node>
 
-  <node pkg="flexro_package" type="j1939_rx.py" name="test_receiver" respawn="true" output="screen" />
+  <node pkg="flexro_package" type="j1939_rx.py" name="check_estop" respawn="true" output="screen" />
 
   <node pkg="flexro_package" type="j1939_transmit.py" name="test_transmitter" respawn="true" output="screen" />
 
