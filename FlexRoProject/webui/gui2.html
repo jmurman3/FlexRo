@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8" />
+
+  <script type="text/javascript" src="http://static.robotwebtools.org/roslibjs/current/roslib.min.js"></script>
+  <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/nipplejs/0.7.3/nipplejs.js"></script>
+
+  <script type="text/javascript" type="text/javascript">
+    var ros = new ROSLIB.Ros({
+      url: 'ws://192.168.1.57:9090'
+    });
+    ros.on('connection', function () {
+      document.getElementById("status").innerHTML = "Connected";
+    });
+    ros.on('error', function (error) {
+      document.getElementById("status").innerHTML = "Error";
+    });
+    ros.on('close', function () {
+      document.getElementById("status").innerHTML = "Closed";
+    });
+    var txt_listener = new ROSLIB.Topic({
+      ros: ros,
+      name: '/flexro/estop/string',
+      messageType: 'std_msgs/String'
+    });
+    txt_listener.subscribe(function (m) {
+      document.getElementById("msg").innerHTML = m.data;
+      move(1, 0);
+    });
+
+    reset_estop_listener = new ROSLIB.Topic({
+      ros: ros,
+      name: "/flexro/estop/reset",
+      messageType: 'std_msgs/String'
+    });
+    reset_estop = function (reset_estop_listener) {
+      var reset_str = new ROSLIB.Message({
+        data: 'RESET'
+      });
+      reset_estop_listener.publish(reset_str);
+    }
+
+    engine_rpm_listener = new ROSLIB.Topic({
+      ros: ros,
+      name: "/flexro/commands/engine",
+      messageType: 'std_msgs/UInt16'
+    });
+    engine_rpm = function (engine_rpm_listener, rpm_val) {
+      var engine_rpm = new ROSLIB.Message({
+        data: rpm_val
+      });
+      engine_rpm_listener.publish(engine_rpm);
+    }
+
+    direction_listener = new ROSLIB.Topic({
+      ros: ros,
+      name: "/flexro/commands/direction",
+      messageType: 'std_msgs/UInt8'
+    });
+    direction_int = function (direction_listener, dir_int) {
+      var direction_int = new ROSLIB.Message({
+        data: dir_int
+      });
+      direction_listener.publish(direction_int);
+    }
+
+    brake_listener = new ROSLIB.Topic({
+      ros: ros,
+      name: "/flexro/commands/brake",
+      messageType: 'std_msgs/UInt8'
+    });
+    brake_int = function (brake_listener, br_int) {
+      var brake_int = new ROSLIB.Message({
+        data: br_int
+      });
+      brake_listener.publish(brake_int);
+    }
+
+    engine_listener = new ROSLIB.Topic({
+      ros: ros,
+      name: "/flexro/commands/enginestate",
+      messageType: 'std_msgs/UInt8'
+    });
+    engine_int = function (engine_listener, eng_int) {
+      var engine_int = new ROSLIB.Message({
+        data: eng_int
+      });
+      engine_listener.publish(engine_int);
+    }
+
+    cmd_vel_listener = new ROSLIB.Topic({
+      ros: ros,
+      name: "/cmd_vel",
+      messageType: 'geometry_msgs/Twist'
+    });
+    move = function (linear, angular) {
+      var twist = new ROSLIB.Message({
+        linear: {
+          x: linear,
+          y: 0,
+          z: 0
+        },
+        angular: {
+          x: 0,
+          y: 0,
+          z: angular
+        }
+      });
+      cmd_vel_listener.publish(twist);
+    }
+
+    createJoystick = function () {
+      var options = {
+        zone: document.getElementById('zone_joystick'),
+        threshold: 0.1,
+        position: { left: 60 + '%' },
+        mode: 'static',
+        size: 150,
+        color: '#000000',
+      };
+      manager = nipplejs.create(options);
+      linear_speed = 0;
+      angular_speed = 0;
+      manager.on('start', function (event, nipple) {
+        timer = setInterval(function () {
+          move(linear_speed, angular_speed);
+        }, 25);
+      });
+      manager.on('move', function (event, nipple) {
+        max_linear = 10; // drive magnitude
+        max_angular = 52; // steer angle
+        max_distance = 75.0; // pixels;
+        linear_speed = Math.sin(nipple.angle.radian) * max_linear * nipple.distance/max_distance;
+				angular_speed = -Math.cos(nipple.angle.radian) * max_angular * nipple.distance/max_distance;
+      });
+      manager.on('end', function () {
+        if (timer) {
+          clearInterval(timer);
+        }
+        self.move(0, 0);
+      });
+    }
+
+    window.onload = function () {
+      createJoystick();
+    }
+  </script>
+  <style>
+    .slidecontainer {
+      width: 100%;
+    }
+    
+    .slider {
+      -webkit-appearance: none;
+      width: 100%;
+      height: 25px;
+      background: #d3d3d3;
+      outline: none;
+      opacity: 0.7;
+      -webkit-transition: .2s;
+      transition: opacity .2s;
+    }
+    
+    .slider:hover {
+      opacity: 1;
+    }
+    
+    .slider::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      appearance: none;
+      width: 25px;
+      height: 25px;
+      background: #4CAF50;
+      cursor: pointer;
+    }
+    
+    .slider::-moz-range-thumb {
+      width: 25px;
+      height: 25px;
+      background: #4CAF50;
+      cursor: pointer;
+    }
+    </style>
+</head>
+
+<body>
+  <h1>FlexRo ROS Web Interface</h1>
+  <h2 id = "id1">Pointless Heading</h2>
+  <div id="zone_joystick" style="position: relative;"></div>
+  <p>Connection status: <span id="status"></span></p>
+  <p>Estop Status: <span id="msg"></span></p>
+  <p>Set Engine RPM: <span id="sliderVal"></span>
+  <div class="slidecontainer">
+    <input type="range" min="1000" max="3400" value="1000" class="slider" id="mySlider">
+  </div>
+
+  <link href="https://cdn.jsdelivr.net/css-toggle-switch/latest/toggle-switch.css" rel="stylesheet" />
+  <div class="switch-toggle switch-3 switch-candy">
+    <input id="fwd" name="state-d" type="radio" checked="" />
+    <label for="fwd" onclick=direction_int(direction_listener,2)>FORWARD</label>
+
+    <input id="neu" name="state-d" type="radio" checked="checked" />
+    <label for="neu" onclick=direction_int(direction_listener,1)>NEUTRAL;</label>
+
+    <input id="rev" name="state-d" type="radio" />
+    <label for="rev" onclick=direction_int(direction_listener,0)>REVERSE</label>
+
+    <a></a>
+  </div>
+
+  <link href="https://cdn.jsdelivr.net/css-toggle-switch/latest/toggle-switch.css" rel="stylesheet" />
+  <div class="switch-toggle switch-2 switch-candy">
+    <input id="rel" name="state-b" type="radio" checked="" />
+    <label for="rel" onclick=brake_int(brake_listener,1)>BRAKE RELEASED</label>
+
+    <input id="app" name="state-b" type="radio" checked="checked"/>
+    <label for="app" onclick=brake_int(brake_listener,0)>BRAKE APPLIED;</label>
+
+    <a></a>
+  </div>
+
+  <link href="https://cdn.jsdelivr.net/css-toggle-switch/latest/toggle-switch.css" rel="stylesheet" />
+  <div class="switch-toggle switch-3 switch-candy">
+    <input id="off" name="state-r" type="radio" checked="checked" />
+    <label for="off" onclick=engine_int(engine_listener,0)>OFF</label>
+
+    <input id="run" name="state-r" type="radio"/>
+    <label for="run" onclick=engine_int(engine_listener,1)>RUN</label>
+
+    <input id="strt" name="state-r" type="radio" />
+    <label for="strt" onclick=engine_int(engine_listener,2)>START</label>
+
+    <a></a>
+  </div>
+
+  </p>
+  <button type="button" onmouseover="document.getElementById('id1').style.color = 'red'" onclick="document.getElementById('id1').style.color = 'black'">Pointless button.</button>
+  <button type="reset" onclick=reset_estop(reset_estop_listener)>Reset Estop Button</button>
+</body>
+
+<script>
+  var slider = document.getElementById("mySlider");
+  var output = document.getElementById("sliderVal");
+  output.innerHTML = slider.value;
+
+  slider.oninput = function() {
+    output.innerHTML = this.value;
+    var set_eng_rpm = parseInt(this.value);
+    engine_rpm(engine_rpm_listener, set_eng_rpm);
+  }
+</script>
+
+</html>

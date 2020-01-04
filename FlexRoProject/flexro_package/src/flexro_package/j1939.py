@@ -9,13 +9,13 @@ class Transmitter(object):
     def __init__(self):
         j1939_transmit_topic = rospy.get_param("~j1939_transmit_topic", default="/j1939/transmitter")
         self._j1939_pub = rospy.Publisher(j1939_transmit_topic, J1939, queue_size=1)
-        self._j1939_sub = rospy.Subscriber("/flexro/estop/hydro", UInt8MultiArray, callback=self._callback, queue_size=1)
+        self._j1939_sub = rospy.Subscriber("/flexro/estop/array", UInt8MultiArray, callback=self._callback, queue_size=1)
 
     def _callback(self, msg):
         j1939_msg = J1939()
         j1939_msg.page = 0
         j1939_msg.pf = 0xFF
-        j1939_msg.ps = 0x11
+        j1939_msg.ps = 0x12
         j1939_msg.source = 0x27
 
         if msg.data == [0]:
